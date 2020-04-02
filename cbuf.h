@@ -5,25 +5,25 @@
 #define FAILURE (1)
 #define NONE    (-1)
 
-typedef struct YX {
+typedef struct Item {
     int y;
     int x;
-} YX;
+} Item;
 
-extern const YX NONE_YX;
+extern const Item NONE_ITEM;
 
-#define Q_SIZE  100
-typedef struct Q {
-    YX q[Q_SIZE];
+#define BUF_SIZE  100
+typedef struct CirBuf {
+    Item cbuf[BUF_SIZE];
     int head;
     int tail;
-} Q;
+} CirBuf;
 
-void print_coord(const YX* coord);
-int q_init(Q* q);
-int q_empty(Q* q);
-int q_full(Q* q);
-int q_push(Q* q, YX item);
-YX q_pop(Q* q);
+void print_item(const Item* item);
+int cbuf_init(CirBuf* cbuf);
+int cbuf_empty(CirBuf* cbuf);
+int cbuf_full(CirBuf* cbuf);
+int cbuf_push(CirBuf* cbuf, Item item);
+Item cbuf_pop(CirBuf* cbuf);
 
 #endif //_CBUF_H_

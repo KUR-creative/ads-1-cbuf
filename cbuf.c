@@ -1,47 +1,49 @@
+// map <F4> :wa<CR>:!g++ test.cpp cbuf.c -o test -lgtest;./test<CR>
+
 #include <stdio.h>
 #include "cbuf.h"
 
-const YX NONE_YX = {NONE,NONE};
+const Item NONE_ITEM = {NONE,NONE};
 
-void print_coord(const YX* coord)
+void print_item(const Item* item)
 {
-    printf("%d,%d", coord->x, coord->y);
+    printf("%d,%d", item->x, item->y);
 }
 
-int q_init(Q* q)
+int cbuf_init(CirBuf* cbuf)
 {
-    q->head = q->tail = 0;
+    cbuf->head = cbuf->tail = 0;
     return SUCCESS;
 }
 
-int q_empty(Q* q)
+int cbuf_empty(CirBuf* cbuf)
 {
-    return q->head == q->tail;
+    return cbuf->head == cbuf->tail;
 }
 
-int q_full(Q* q)
+int cbuf_full(CirBuf* cbuf)
 {
-    return q->head == (q->tail + 1) % Q_SIZE;
+    return cbuf->head == (cbuf->tail + 1) % BUF_SIZE;
 }
 
-int q_push(Q* q, YX item)
+int cbuf_push(CirBuf* cbuf, Item item)
 {
-    if(q_full(q)){
+    if(cbuf_full(cbuf)){
         return FAILURE;
     }else{
-        q->q[q->tail] = item;
-        q->tail = (q->tail + 1) % Q_SIZE;
+        cbuf->cbuf[cbuf->tail] = item;
+        cbuf->tail = (cbuf->tail + 1) % BUF_SIZE;
         return SUCCESS;
     }
 }
 
-YX q_pop(Q* q)
+Item cbuf_pop(CirBuf* cbuf)
 {
-    if(q_empty(q)){
-        return NONE_YX;
+    if(cbuf_empty(cbuf)){
+        return NONE_ITEM;
     }else{
-        YX ret = q->q[q->head];
-        q->head = (q->head + 1) % Q_SIZE;
+        Item ret = cbuf->cbuf[cbuf->head];
+        cbuf->head = (cbuf->head + 1) % BUF_SIZE;
         return ret;
     }
 }
