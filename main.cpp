@@ -40,11 +40,13 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 
 // Circular buffer operates like queue.
 int main(int argc, char* argv[]){
-    //int num_data = 10e8; // 14610.6 ms
-    int num_data = 10e7; // 1461.6 ms
-    //int num_data = 10e5; // 1461.6 ms
-    //int num_data = 10e3; // 1461.6 ms
-    //int num_data = 100; // 1461.6 ms
+    int num_data = 10e3;
+    if(argc > 1){
+        if(sscanf(argv[1], "%d", &num_data) == EOF){
+            std::cout << "argv error: " << '\n';
+            std::cout << argv[0] << ',' << argv[1] << '\n';
+        }
+    }
     auto items = item_seq(0, num_data);
 
     // data.num: data 개수
