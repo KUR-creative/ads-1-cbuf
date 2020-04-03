@@ -5,14 +5,11 @@
 #define FAILURE (1)
 #define NONE    (-1)
 
-typedef struct Item {
-    int y;
-    int x;
-} Item;
+typedef int Item;
+//typedef struct Item { int y; int x; } Item;
+#define NONE_ITEM NONE
 
-extern const Item NONE_ITEM;
-
-#define BUF_SIZE  100
+#define BUF_SIZE  10000
 typedef struct CirBuf {
     Item cbuf[BUF_SIZE];
     int head;

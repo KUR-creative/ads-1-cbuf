@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "cbuf.h"
+#include <vector>
 
 int main(int argc, char* argv[]){
     std::cout << "ppap" << std::endl;

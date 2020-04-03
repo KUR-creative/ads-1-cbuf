@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include "cbuf.h"
 
-const Item NONE_ITEM = {NONE,NONE};
-
 void print_item(const Item* item)
 {
-    printf("%d,%d", item->x, item->y);
+    //printf("%d,%d", item->x, item->y);
+    printf("%d", *item);
 }
 
 int cbuf_init(CirBuf* cbuf)
