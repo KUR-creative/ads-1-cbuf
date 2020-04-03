@@ -26,7 +26,7 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
     return vec;
 }
 
-#define EXPR(key, code) do{ \
+#define EXPR(key, description, code) do{ \
     auto beg_clk = crn::steady_clock::now();        \
     code                                            \
     auto end_clk = crn::steady_clock::now();        \
@@ -72,22 +72,18 @@ int main(int argc, char* argv[]){
 
     {
         std::queue<Item> q;
-        // q.push: Queue push 수행 시간
-        EXPR("q.push",
+        EXPR("q.push", "Queue push 수행 시간",
             for(int i = 0; i < num_data; i++){
                 q.push(seq[i]);
             }
         );
-
-        // q.pop: Queue pop 수행 시간
-        EXPR("q.pop",
+        EXPR("q.pop", "Queue pop 수행 시간",
             for(int i = 0; i < num_data; i++){
                 q.pop();
             }
         );
     }
 
-    // cbuf.push: Circular buffer push 수행 시간
     // cbuf.pop: Circular buffer pop 수행 시간
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
