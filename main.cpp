@@ -7,7 +7,7 @@
 #include <random>    // mt, rand_dev
 #include <vector>
 #include <queue>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "cbuf.h"
 
@@ -49,26 +49,24 @@ int main(int argc, char* argv[]){
     // data.seq: data 시퀀스
     std::cout << "data.num: " << num_data << "\n";
 
+    {
     Item* q_result = (Item*)malloc(num_data * sizeof(Item));
     Item* cbuf_result = (Item*)malloc(num_data * sizeof(Item));
 
-    {
     std::queue<Item> q;
     EXPR("q.push", "Queue push 수행 시간",
         for(int i = 0; i < num_data; i++){
             q.push(items[i]);
         }
     );
-    int idx = 0;
+    int q_idx = 0;
     EXPR("q.pop", "Queue pop 수행 시간",
         for(int i = 0; i < num_data; i++){
-            q_result[idx++] = q.front();
+            q_result[q_idx++] = q.front();
             q.pop();
         }
     );
-    }
 
-    {
     size_t buf_size = num_data;
     CirBuf cbuf; cbuf_init(&cbuf, buf_size);
     EXPR("cbuf.push", "Circular buffer push 수행 시간",
@@ -76,35 +74,34 @@ int main(int argc, char* argv[]){
             cbuf_push(&cbuf, items[i]);
         }
     );
-    int idx = 0;
+    int b_idx = 0;
     EXPR("cbuf.pop", "Circular buffer pop 수행 시간",
         for(int i = 0; i < num_data; i++){
             Item poped = cbuf_pop(&cbuf);
             if(poped != NONE_ITEM){
-                cbuf_result[idx++] = poped;
+                cbuf_result[b_idx++] = poped;
             }
         }
     );
     cbuf_deinit(&cbuf);
-    }
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
-    {
-        for(int i = 0; i < num_data - 1; i++){
-            if(q_result[i] != cbuf_result[i]){
-                printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
-                       i, q_result[i], cbuf_result[i], i);
-                exit(1);
-            }
+    for(int i = 0; i < num_data - 1; i++){
+        if(q_result[i] != cbuf_result[i]){
+            printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
+                   i, q_result[i], cbuf_result[i], i);
+            exit(1);
         }
+    }
+    free(q_result);
+    free(cbuf_result);
     }
     
     // push/pop.seq: push/pop 혼합 시퀀스 
     // q.mixed: Queue push/pop 혼합 시퀀스 수행시간
+    
     // cbuf.mixed: Queue push/pop 혼합 시퀀스 수행시간
     
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
-    free(q_result);
-    free(cbuf_result);
     return 0;
 }
