@@ -42,7 +42,8 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 int main(int argc, char* argv[]){
     //int num_data = 10e8; // 14610.6 ms
     //int num_data = 10e7; // 1461.6 ms
-    int num_data = 100; // 1461.6 ms
+    int num_data = 10e3; // 1461.6 ms
+    //int num_data = 100; // 1461.6 ms
     auto items = item_seq(0, num_data);
 
     // data.num: data 개수
@@ -50,8 +51,8 @@ int main(int argc, char* argv[]){
     std::cout << "data.num: " << num_data << "\n";
 
     {
-    Item* q_result = (Item*)malloc(num_data * sizeof(Item));
-    Item* cbuf_result = (Item*)malloc(num_data * sizeof(Item));
+    std::vector<Item> q_result(num_data);
+    std::vector<Item> cbuf_result(num_data);
 
     std::queue<Item> q;
     EXPR("q.push", "Queue push 수행 시간",
@@ -93,8 +94,6 @@ int main(int argc, char* argv[]){
             exit(1);
         }
     }
-    free(q_result);
-    free(cbuf_result);
     }
     
     // push/pop.seq: push/pop 혼합 시퀀스 
