@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include "cbuf.h"
 
@@ -7,9 +8,20 @@ void print_item(const Item* item)
     printf("%d", *item);
 }
 
-int cbuf_init(CirBuf* cbuf)
+int cbuf_init(CirBuf* cbuf, size_t buf_size)
 {
+    cbuf->cbuf = (Item*)malloc(buf_size * sizeof(Item));
+    if(cbuf->cbuf == NULL){
+        return FAILURE;
+    }
+    cbuf->buf_size = buf_size;
     cbuf->head = cbuf->tail = 0;
+    return SUCCESS;
+}
+
+int cbuf_deinit(CirBuf* cbuf)
+{
+    free(cbuf->cbuf);
     return SUCCESS;
 }
 
@@ -20,7 +32,7 @@ int cbuf_empty(CirBuf* cbuf)
 
 int cbuf_full(CirBuf* cbuf)
 {
-    return cbuf->head == (cbuf->tail + 1) % BUF_SIZE;
+    return cbuf->head == (cbuf->tail + 1) % cbuf->buf_size;
 }
 
 int cbuf_push(CirBuf* cbuf, Item item)
@@ -29,7 +41,7 @@ int cbuf_push(CirBuf* cbuf, Item item)
         return FAILURE;
     }else{
         cbuf->cbuf[cbuf->tail] = item;
-        cbuf->tail = (cbuf->tail + 1) % BUF_SIZE;
+        cbuf->tail = (cbuf->tail + 1) % cbuf->buf_size;
         return SUCCESS;
     }
 }
@@ -40,7 +52,7 @@ Item cbuf_pop(CirBuf* cbuf)
         return NONE_ITEM;
     }else{
         Item ret = cbuf->cbuf[cbuf->head];
-        cbuf->head = (cbuf->head + 1) % BUF_SIZE;
+        cbuf->head = (cbuf->head + 1) % cbuf->buf_size;
         return ret;
     }
 }

@@ -9,15 +9,18 @@ typedef int Item;
 //typedef struct Item { int y; int x; } Item;
 #define NONE_ITEM NONE
 
-#define BUF_SIZE  10000
+//#define BUF_SIZE  10000000000
+//#define BUF_SIZE  1000000
 typedef struct CirBuf {
-    Item cbuf[BUF_SIZE];
+    Item* cbuf;
+    int buf_size;
     int head;
     int tail;
 } CirBuf;
 
 void print_item(const Item* item);
-int cbuf_init(CirBuf* cbuf);
+int cbuf_init(CirBuf* cbuf, size_t buf_size);
+int cbuf_deinit(CirBuf* cbuf);
 int cbuf_empty(CirBuf* cbuf);
 int cbuf_full(CirBuf* cbuf);
 int cbuf_push(CirBuf* cbuf, Item item);

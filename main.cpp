@@ -1,12 +1,16 @@
 // map <F4> :wa<CR>:!g++ main.cpp cbuf.c -o main;./main<CR>
 
 #include <iostream>
+#include <chrono>
 #include <numeric>   // iota
 #include <algorithm> // shuffle
 #include <random>    // mt, rand_dev
 #include <vector>
 #include <queue>
+
 #include "cbuf.h"
+
+namespace crn = std::chrono;
 
 std::vector<Item> item_seq(Item beg, Item end){
     std::vector<Item> vec(end);
@@ -24,6 +28,7 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 
 // Circular buffer operates like queue.
 int main(int argc, char* argv[]){
+    /*
     //auto vec = item_seq(0, 30);
     auto vec = item_rand_seq(0, 30);
     for(int i = 0; i < 30; i++){
@@ -36,13 +41,56 @@ int main(int argc, char* argv[]){
         q.push(vec[i]);
         std::cout << q.back() << ' ';
     }
+    */
+
+    //int num_data = 10e8; // 14610.6 ms
+    int num_data = 10e7; // 1461.6 ms
+    auto seq = item_seq(0, num_data);
 
     // data.num: data 개수
     // data.seq: data 시퀀스
-    
+    std::cout << "data.num: " << num_data << "\n";
+    /*
+    std::cout << "data.seq: ";
+    std::cout << "[";
+    for(int i = 0; i < num_data; i++){
+        std::cout << seq[i] << ',';
+    }
+    std::cout << "]" << std::endl;
+    */
+
+
     // q.push: Queue push 수행 시간
     // q.pop: Queue pop 수행 시간
-    
+    {
+        std::queue<Item> q;
+        {
+        auto beg_clk = crn::steady_clock::now();
+        for(int i = 0; i < num_data; i++){
+            q.push(seq[i]);
+        }
+        auto end_clk = crn::steady_clock::now();
+        auto run_time = end_clk - beg_clk;
+        std::cout << 
+            "q.push: " <<
+            crn::duration<double,std::milli>(run_time)
+            .count() << std::endl; // milli sec
+        }
+
+        {
+        auto beg_clk = crn::steady_clock::now();
+        for(int i = 0; i < num_data; i++){
+            q.pop();
+        }
+        auto end_clk = crn::steady_clock::now();
+        auto run_time = end_clk - beg_clk;
+        std::cout << 
+            "q.pop: " <<
+            crn::duration<double,std::milli>(run_time)
+            .count() << std::endl; // milli sec
+        }
+    }
+
     // cbuf.push: Circular buffer push 수행 시간
     // cbuf.pop: Circular buffer pop 수행 시간
 

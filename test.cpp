@@ -1,4 +1,4 @@
-// map <F8> :wa<CR>:!g++ test.cpp cbuf.c -o test -lgtest;./test<CR>
+// map <F8> :wa<CR>:!rm test;g++ test.cpp cbuf.c -o test -lgtest;./test<CR>
 
 #include <gtest/gtest.h>
 #include "cbuf.h"
@@ -10,7 +10,8 @@ TEST(test, print_item) {
 }
 
 TEST(cbuf, push_and_pop) {
-    CirBuf cbuf; cbuf_init(&cbuf);
+    size_t BUF_SIZE = 100;
+    CirBuf cbuf; cbuf_init(&cbuf, BUF_SIZE);
     Item expected[3] = {1, 3, 5};
     for(int i = 0; i < 3; i++){
         cbuf_push(&cbuf, expected[i]);
@@ -22,14 +23,16 @@ TEST(cbuf, push_and_pop) {
 }
 
 TEST(cbuf, cannot_pop_from_empty_cbuf) {
-    CirBuf cbuf; cbuf_init(&cbuf);
+    size_t BUF_SIZE = 100;
+    CirBuf cbuf; cbuf_init(&cbuf, BUF_SIZE);
     ASSERT_TRUE(cbuf_empty(&cbuf));
     Item actual = cbuf_pop(&cbuf);
     ASSERT_EQ(actual, NONE);
 }
 
 TEST(cbuf, cannot_push_to_full_cbuf) {
-    CirBuf cbuf; cbuf_init(&cbuf);
+    size_t BUF_SIZE = 100;
+    CirBuf cbuf; cbuf_init(&cbuf, BUF_SIZE);
     Item yx = 0;
     for(int i = 1; i <= BUF_SIZE - 1; i++){
         ASSERT_EQ(cbuf_push(&cbuf, yx), SUCCESS);
@@ -38,7 +41,8 @@ TEST(cbuf, cannot_push_to_full_cbuf) {
 }
 
 TEST(cbuf, circular_push) {
-    CirBuf cbuf; cbuf_init(&cbuf);
+    size_t BUF_SIZE = 100;
+    CirBuf cbuf; cbuf_init(&cbuf, BUF_SIZE);
     Item expected[BUF_SIZE - 1] = {9, 0};
 
     for(int i = 0; i < BUF_SIZE - 1; i++){
