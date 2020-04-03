@@ -124,8 +124,21 @@ int main(int argc, char* argv[]){
             }
         }
     );
-    // cbuf.mixed: Queue push/pop 혼합 시퀀스 수행시간
-    
+
+
+    size_t buf_size = num_data * 0.7;
+    CirBuf cbuf; cbuf_init(&cbuf, buf_size);
+    EXPR("cbuf.mixed", "Queue push/pop 혼합 시퀀스 수행시간",
+        for(int i = 0; i < 2 * num_data; i++){
+            if(pp_seq[i] == 'u'){
+                cbuf_push(&cbuf, items[i]);
+            }else{
+                if(! cbuf_empty(&cbuf)){
+                    cbuf_pop(&cbuf);
+                }
+            }
+        }
+    );
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
     }
 
