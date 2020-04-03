@@ -41,8 +41,8 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 // Circular buffer operates like queue.
 int main(int argc, char* argv[]){
     //int num_data = 10e8; // 14610.6 ms
-    //int num_data = 10e7; // 1461.6 ms
-    int num_data = 10e5; // 1461.6 ms
+    int num_data = 10e7; // 1461.6 ms
+    //int num_data = 10e5; // 1461.6 ms
     //int num_data = 10e3; // 1461.6 ms
     //int num_data = 100; // 1461.6 ms
     auto items = item_seq(0, num_data);
@@ -98,6 +98,9 @@ int main(int argc, char* argv[]){
     }
     
     {
+    std::vector<Item> q_result(2 * num_data);
+    std::vector<Item> cbuf_result(2 * num_data);
+
     // push/pop.seq: push/pop 혼합 시퀀스 
     std::random_device rd; 
     std::mt19937 mersenne(rd()); 
@@ -113,12 +116,14 @@ int main(int argc, char* argv[]){
     
     // 
     std::queue<Item> q;
+    int q_idx = 0;
     EXPR("q.mixed", "Queue push/pop 혼합 시퀀스 수행시간",
         for(int i = 0; i < 2 * num_data; i++){
             if(pp_seq[i] == 'u'){
                 q.push(items[i]);
             }else{
                 if(! q.empty()){
+                    q_result[q_idx++] = q.front();
                     q.pop();
                 }
             }
@@ -128,18 +133,30 @@ int main(int argc, char* argv[]){
 
     size_t buf_size = num_data * 0.7;
     CirBuf cbuf; cbuf_init(&cbuf, buf_size);
+    int b_idx = 0;
     EXPR("cbuf.mixed", "Queue push/pop 혼합 시퀀스 수행시간",
         for(int i = 0; i < 2 * num_data; i++){
             if(pp_seq[i] == 'u'){
                 cbuf_push(&cbuf, items[i]);
             }else{
                 if(! cbuf_empty(&cbuf)){
-                    cbuf_pop(&cbuf);
+                    Item poped = cbuf_pop(&cbuf);
+                    if(poped != NONE_ITEM){
+                        cbuf_result[b_idx++] = poped;
+                    }
                 }
             }
         }
     );
+
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
+    for(int i = 0; i < num_data - 1; i++){
+        if(q_result[i] != cbuf_result[i]){
+            printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
+                   i, q_result[i], cbuf_result[i], i);
+            exit(1);
+        }
+    }
     }
 
     return 0;
