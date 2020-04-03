@@ -71,19 +71,34 @@ int main(int argc, char* argv[]){
     */
 
     {
-        std::queue<Item> q;
-        EXPR("q.push", "Queue push 수행 시간",
-            for(int i = 0; i < num_data; i++){
-                q.push(seq[i]);
-            }
-        );
-        EXPR("q.pop", "Queue pop 수행 시간",
-            for(int i = 0; i < num_data; i++){
-                q.pop();
-            }
-        );
+    std::queue<Item> q;
+    EXPR("q.push", "Queue push 수행 시간",
+        for(int i = 0; i < num_data; i++){
+            q.push(seq[i]);
+        }
+    );
+    EXPR("q.pop", "Queue pop 수행 시간",
+        for(int i = 0; i < num_data; i++){
+            q.pop();
+        }
+    );
     }
 
+    {
+    size_t buf_size = num_data;
+    CirBuf cbuf; cbuf_init(&cbuf, buf_size);
+    EXPR("cbuf.push", "Circular buffer push 수행 시간",
+        for(int i = 0; i < num_data; i++){
+            cbuf_push(&cbuf, seq[i]);
+        }
+    );
+    EXPR("cbuf.pop", "Circular buffer pop 수행 시간",
+        for(int i = 0; i < num_data; i++){
+            cbuf_pop(&cbuf);
+        }
+    );
+    cbuf_deinit(&cbuf);
+    }
     // cbuf.pop: Circular buffer pop 수행 시간
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
