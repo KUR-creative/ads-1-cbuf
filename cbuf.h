@@ -9,8 +9,6 @@ typedef int Item;
 //typedef struct Item { int y; int x; } Item;
 #define NONE_ITEM NONE
 
-//#define BUF_SIZE  10000000000
-//#define BUF_SIZE  1000000
 typedef struct CirBuf {
     Item* cbuf;
     int buf_size;

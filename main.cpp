@@ -26,6 +26,17 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
     return vec;
 }
 
+#define EXPR(key, code) do{ \
+    auto beg_clk = crn::steady_clock::now();        \
+    code                                            \
+    auto end_clk = crn::steady_clock::now();        \
+    auto run_time = end_clk - beg_clk;              \
+    std::cout <<                                    \
+        key": " <<                                  \
+        crn::duration<double,std::milli>(run_time)  \
+        .count() << std::endl;                      \
+}while(0)
+
 // Circular buffer operates like queue.
 int main(int argc, char* argv[]){
     /*
@@ -59,36 +70,21 @@ int main(int argc, char* argv[]){
     std::cout << "]" << std::endl;
     */
 
-
-    // q.push: Queue push 수행 시간
-    // q.pop: Queue pop 수행 시간
     {
         std::queue<Item> q;
-        {
-        auto beg_clk = crn::steady_clock::now();
-        for(int i = 0; i < num_data; i++){
-            q.push(seq[i]);
-        }
-        auto end_clk = crn::steady_clock::now();
-        auto run_time = end_clk - beg_clk;
-        std::cout << 
-            "q.push: " <<
-            crn::duration<double,std::milli>(run_time)
-            .count() << std::endl; // milli sec
-        }
+        // q.push: Queue push 수행 시간
+        EXPR("q.push",
+            for(int i = 0; i < num_data; i++){
+                q.push(seq[i]);
+            }
+        );
 
-        {
-        auto beg_clk = crn::steady_clock::now();
-        for(int i = 0; i < num_data; i++){
-            q.pop();
-        }
-        auto end_clk = crn::steady_clock::now();
-        auto run_time = end_clk - beg_clk;
-        std::cout << 
-            "q.pop: " <<
-            crn::duration<double,std::milli>(run_time)
-            .count() << std::endl; // milli sec
-        }
+        // q.pop: Queue pop 수행 시간
+        EXPR("q.pop",
+            for(int i = 0; i < num_data; i++){
+                q.pop();
+            }
+        );
     }
 
     // cbuf.push: Circular buffer push 수행 시간
