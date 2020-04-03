@@ -1,5 +1,3 @@
-// map <F4> :wa<CR>:!g++ test.cpp cbuf.c -o test -lgtest;./test<CR>
-
 #include <stdio.h>
 #include "cbuf.h"
 
