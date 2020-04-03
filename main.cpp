@@ -1,4 +1,4 @@
-// map <F4> :wa<CR>:!g++ main.cpp cbuf.c -o main;./main<CR>
+// map <F4> :wa<CR>:!rm main;g++ main.cpp cbuf.c -o main;./main<CR>
 
 #include <iostream>
 #include <chrono>
@@ -7,6 +7,7 @@
 #include <random>    // mt, rand_dev
 #include <vector>
 #include <queue>
+#include <stdlib.h>
 
 #include "cbuf.h"
 
@@ -26,7 +27,7 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
     return vec;
 }
 
-#define EXPR(key, description, code) do{ \
+#define EXPR(key, description, code) do{            \
     auto beg_clk = crn::steady_clock::now();        \
     code                                            \
     auto end_clk = crn::steady_clock::now();        \
@@ -39,46 +40,29 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 
 // Circular buffer operates like queue.
 int main(int argc, char* argv[]){
-    /*
-    //auto vec = item_seq(0, 30);
-    auto vec = item_rand_seq(0, 30);
-    for(int i = 0; i < 30; i++){
-        std::cout << vec[i] << ' ';
-    }
-    std::cout << std::endl;
-
-    std::queue<Item> q;
-    for(int i = 0; i < 30; i++){
-        q.push(vec[i]);
-        std::cout << q.back() << ' ';
-    }
-    */
-
     //int num_data = 10e8; // 14610.6 ms
-    int num_data = 10e7; // 1461.6 ms
-    auto seq = item_seq(0, num_data);
+    //int num_data = 10e7; // 1461.6 ms
+    int num_data = 100; // 1461.6 ms
+    auto items = item_seq(0, num_data);
 
     // data.num: data 개수
     // data.seq: data 시퀀스
     std::cout << "data.num: " << num_data << "\n";
-    /*
-    std::cout << "data.seq: ";
-    std::cout << "[";
-    for(int i = 0; i < num_data; i++){
-        std::cout << seq[i] << ',';
-    }
-    std::cout << "]" << std::endl;
-    */
+
+    Item* q_result = (Item*)malloc(num_data * sizeof(Item));
+    Item* cbuf_result = (Item*)malloc(num_data * sizeof(Item));
 
     {
     std::queue<Item> q;
     EXPR("q.push", "Queue push 수행 시간",
         for(int i = 0; i < num_data; i++){
-            q.push(seq[i]);
+            q.push(items[i]);
         }
     );
+    int idx = 0;
     EXPR("q.pop", "Queue pop 수행 시간",
         for(int i = 0; i < num_data; i++){
+            q_result[idx++] = q.front();
             q.pop();
         }
     );
@@ -89,24 +73,38 @@ int main(int argc, char* argv[]){
     CirBuf cbuf; cbuf_init(&cbuf, buf_size);
     EXPR("cbuf.push", "Circular buffer push 수행 시간",
         for(int i = 0; i < num_data; i++){
-            cbuf_push(&cbuf, seq[i]);
+            cbuf_push(&cbuf, items[i]);
         }
     );
+    int idx = 0;
     EXPR("cbuf.pop", "Circular buffer pop 수행 시간",
         for(int i = 0; i < num_data; i++){
-            cbuf_pop(&cbuf);
+            Item poped = cbuf_pop(&cbuf);
+            if(poped != NONE_ITEM){
+                cbuf_result[idx++] = poped;
+            }
         }
     );
     cbuf_deinit(&cbuf);
     }
-    // cbuf.pop: Circular buffer pop 수행 시간
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
+    {
+        for(int i = 0; i < num_data - 1; i++){
+            if(q_result[i] != cbuf_result[i]){
+                printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
+                       i, q_result[i], cbuf_result[i], i);
+                exit(1);
+            }
+        }
+    }
     
     // push/pop.seq: push/pop 혼합 시퀀스 
     // q.mixed: Queue push/pop 혼합 시퀀스 수행시간
     // cbuf.mixed: Queue push/pop 혼합 시퀀스 수행시간
     
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
+    free(q_result);
+    free(cbuf_result);
     return 0;
 }
