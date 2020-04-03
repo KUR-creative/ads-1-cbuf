@@ -42,7 +42,8 @@ std::vector<Item> item_rand_seq(Item beg, Item end){
 int main(int argc, char* argv[]){
     //int num_data = 10e8; // 14610.6 ms
     //int num_data = 10e7; // 1461.6 ms
-    int num_data = 10e3; // 1461.6 ms
+    int num_data = 10e5; // 1461.6 ms
+    //int num_data = 10e3; // 1461.6 ms
     //int num_data = 100; // 1461.6 ms
     auto items = item_seq(0, num_data);
 
@@ -96,11 +97,37 @@ int main(int argc, char* argv[]){
     }
     }
     
+    {
     // push/pop.seq: push/pop 혼합 시퀀스 
-    // q.mixed: Queue push/pop 혼합 시퀀스 수행시간
+    std::random_device rd; 
+    std::mt19937 mersenne(rd()); 
+    std::uniform_int_distribution<> coin(0, 1); 
+
+    std::vector<char> pp_seq (2 * num_data);
+    for(int i = 0; i < 2 * num_data; i++){
+        pp_seq[i] = (coin(mersenne) ? 'u' : 'o');
+        //'u' means push, 'o' means pop
+    }
+    auto items = item_rand_seq(0, 2 * num_data);
+
     
+    // 
+    std::queue<Item> q;
+    EXPR("q.mixed", "Queue push/pop 혼합 시퀀스 수행시간",
+        for(int i = 0; i < 2 * num_data; i++){
+            if(pp_seq[i] == 'u'){
+                q.push(items[i]);
+            }else{
+                if(! q.empty()){
+                    q.pop();
+                }
+            }
+        }
+    );
     // cbuf.mixed: Queue push/pop 혼합 시퀀스 수행시간
     
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
+    }
+
     return 0;
 }
