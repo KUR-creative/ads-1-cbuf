@@ -27,7 +27,7 @@ TEST(cbuf, cannot_pop_from_empty_cbuf) {
     CirBuf cbuf; cbuf_init(&cbuf, BUF_SIZE);
     ASSERT_TRUE(cbuf_empty(&cbuf));
     Item actual = cbuf_pop(&cbuf);
-    ASSERT_EQ(actual, NONE);
+    ASSERT_EQ(actual, NONE_ITEM);
 }
 
 TEST(cbuf, cannot_push_to_full_cbuf) {
