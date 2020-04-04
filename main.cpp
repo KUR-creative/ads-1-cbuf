@@ -21,9 +21,20 @@ std::vector<Item> item_seq(Item beg, Item end){
 
 std::vector<Item> item_rand_seq(Item beg, Item end){
     auto vec = item_seq(beg, end);
+    //=================================================
+    auto beg_clk = crn::steady_clock::now();        
+    //-------------------------------------------------
+    auto rng = std::default_random_engine {};
     std::shuffle(
-        vec.begin(), vec.end(), 
-        std::mt19937{std::random_device{}()});
+        vec.begin(), vec.end(), rng);
+    //-------------------------------------------------
+    auto end_clk = crn::steady_clock::now();       
+    auto run_time = end_clk - beg_clk;            
+    std::cout <<                                    
+        " rand.seq.shuffle: " <<                                  
+        crn::duration<double,std::milli>(run_time)  
+        .count() << std::endl;                      
+    //=================================================
     return vec;
 }
 
@@ -90,20 +101,21 @@ int main(int argc, char* argv[]){
     cbuf_deinit(&cbuf);
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
-    for(int i = 0; i < num_data - 1; i++){
-        if(q_result[i] != cbuf_result[i]){
-            printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
-                   i, q_result[i], cbuf_result[i], i);
-            exit(1);
+    //EXPR("q=cbuf","Circular buffer가 Queue와 동일하게 작동하는가?",
+        for(int i = 0; i < num_data - 1; i++){
+            if(q_result[i] != cbuf_result[i]){
+                printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
+                       i, q_result[i], cbuf_result[i], i);
+                exit(1);
+            }
         }
-    }
+    //);
     }
     
     {
     std::vector<Item> q_result(2 * num_data);
     std::vector<Item> cbuf_result(2 * num_data);
 
-    // push/pop.seq: push/pop 혼합 시퀀스 
     std::random_device rd; 
     std::mt19937 mersenne(rd()); 
     std::uniform_int_distribution<> coin(0, 1); 
@@ -113,7 +125,19 @@ int main(int argc, char* argv[]){
         pp_seq[i] = (coin(mersenne) ? 'u' : 'o');
         //'u' means push, 'o' means pop
     }
-    auto items = item_rand_seq(0, 2 * num_data);
+
+    //=================================================
+    auto beg_clk = crn::steady_clock::now();        
+    //-------------------------------------------------
+
+    //auto items = item_rand_seq(0, 2 * num_data);
+    auto items = item_seq(0, 2 * num_data);
+
+    //-------------------------------------------------
+    auto end_clk = crn::steady_clock::now();       
+    auto run_time = end_clk - beg_clk;            
+    //std::cout << "seq.gen: " << crn::duration<double,std::milli>(run_time).count() << std::endl;                      
+    //=================================================
 
     
     // 
@@ -152,13 +176,15 @@ int main(int argc, char* argv[]){
     );
 
     // q=cbuf: Circular buffer가 Queue와 동일하게 작동하는가?
-    for(int i = 0; i < num_data - 1; i++){
-        if(q_result[i] != cbuf_result[i]){
-            printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
-                   i, q_result[i], cbuf_result[i], i);
-            exit(1);
+    //EXPR("q=cbuf.mixed","Circular buffer가 Queue와 동일하게 작동하는가?",
+        for(int i = 0; i < num_data - 1; i++){
+            if(q_result[i] != cbuf_result[i]){
+                printf("q_result[%d] = %d != %d = cbuf_result[%d]", 
+                       i, q_result[i], cbuf_result[i], i);
+                exit(1);
+            }
         }
-    }
+    //);
     }
 
     return 0;
